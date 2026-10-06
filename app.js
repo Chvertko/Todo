@@ -10,6 +10,7 @@ const SELECTORS = {
   editInput: ".todo-item__edit-input",
   filterWrapper: ".todo-list__filter-wrapper",
   searchInput: ".search-input",
+  searchClearButton: ".search-form__clear-button",
 };
 
 //state
@@ -22,6 +23,7 @@ const mainInput = document.querySelector(SELECTORS.mainInput);
 const todosList = document.querySelector(SELECTORS.todoList);
 const filterWrapper = document.querySelector(SELECTORS.filterWrapper);
 const searchInput = document.querySelector(SELECTORS.searchInput);
+const clearSearchButton = document.querySelector(SELECTORS.searchClearButton);
 //storage
 const getTodosFromStorage = () => {
   const todosFromStorage = window.localStorage.getItem("todos");
@@ -272,6 +274,12 @@ filterWrapper.addEventListener("click", (event) => {
 
 searchInput.addEventListener("input", (event) => {
   searchValue = event.target.value;
+  renderTodos();
+});
+
+clearSearchButton.addEventListener("click", () => {
+  searchInput.value = "";
+  searchValue = "";
   renderTodos();
 });
 
