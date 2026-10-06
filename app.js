@@ -9,17 +9,19 @@ const SELECTORS = {
   saveButton: ".todo-item__save-button",
   editInput: ".todo-item__edit-input",
   filterWrapper: ".todo-list__filter-wrapper",
+  searchInput: ".search-input",
 };
 
 //state
 let currentFilter = window.localStorage.getItem("currentFilter") || "all";
 let sortedTodos = [];
+let searchValue = "";
 const todos = [];
 const todoForm = document.querySelector(SELECTORS.todoForm);
 const mainInput = document.querySelector(SELECTORS.mainInput);
 const todosList = document.querySelector(SELECTORS.todoList);
 const filterWrapper = document.querySelector(SELECTORS.filterWrapper);
-
+const searchInput = document.querySelector(SELECTORS.searchInput);
 //storage
 const getTodosFromStorage = () => {
   const todosFromStorage = window.localStorage.getItem("todos");
@@ -136,17 +138,10 @@ const saveEditTodo = (todoId) => {
   renderTodos();
 };
 
-const filterTodos = () => {
-  if (currentFilter === "active") {
-    const filteredTodos = todos.filter((todo) => !todo.done);
-    sortedTodos.splice(0, sortedTodos.length, ...filteredTodos);
-  } else if (currentFilter === "completed") {
-    const filteredTodos = todos.filter((todo) => todo.done);
-    sortedTodos.splice(0, sortedTodos.length, ...filteredTodos);
-  }
-  window.localStorage.setItem("todos", JSON.stringify(todos));
+const filterTodos = (filter) => {
+  currentFilter = filter;
+  window.localStorage.setItem("currentFilter", currentFilter);
   renderTodos();
-  return;
 };
 
 const renderTodoItem = (todo) => {
@@ -180,14 +175,31 @@ const renderTodoItem = (todo) => {
   `;
 };
 
-const renderTodos = () => {
-  if (currentFilter === "all") {
-    todosList.innerHTML = todos.map((todo) => renderTodoItem(todo)).join("");
-  } else {
-    todosList.innerHTML = sortedTodos
-      .map((todo) => renderTodoItem(todo))
-      .join("");
+const getVisibleTodos = () => {
+  let visibleTodos = [...todos];
+  if (currentFilter === "active") {
+    visibleTodos = visibleTodos.filter((todo) => !todo.done);
   }
+
+  if (currentFilter === "completed") {
+    visibleTodos = visibleTodos.filter((todo) => todo.done);
+  }
+
+  if (searchValue) {
+    const value = searchValue.trim().toLowerCase();
+    visibleTodos = visibleTodos.filter((todo) =>
+      todo.text.toLowerCase().includes(value),
+    );
+  }
+  return visibleTodos;
+};
+
+const renderTodos = () => {
+  const visibleTodos = getVisibleTodos();
+
+  todosList.innerHTML = visibleTodos
+    .map((todo) => renderTodoItem(todo))
+    .join("");
 };
 
 const handleSubmit = (event) => {
@@ -246,11 +258,21 @@ todosList.addEventListener("keydown", (event) => {
 filterWrapper.addEventListener("click", (event) => {
   const filterButton = event.target.closest("button");
 
-  if (filterButton) {
-    currentFilter = filterButton.dataset.filter;
-    window.localStorage.setItem("currentFilter", currentFilter);
-    filterTodos();
+  if (!filterButton) {
+    return;
   }
+
+  const nextFilter = filterButton.dataset.filter;
+
+  if (!nextFilter) {
+    return;
+  }
+  filterTodos(nextFilter);
+});
+
+searchInput.addEventListener("input", (event) => {
+  searchValue = event.target.value;
+  renderTodos();
 });
 
 todoForm.addEventListener("submit", handleSubmit);
