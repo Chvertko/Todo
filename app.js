@@ -15,15 +15,14 @@ const SELECTORS = {
 
 //state
 let currentFilter = window.localStorage.getItem("currentFilter") || "all";
-let sortedTodos = [];
 let searchValue = "";
-const todos = [];
 const todoForm = document.querySelector(SELECTORS.todoForm);
 const mainInput = document.querySelector(SELECTORS.mainInput);
 const todosList = document.querySelector(SELECTORS.todoList);
 const filterWrapper = document.querySelector(SELECTORS.filterWrapper);
 const searchInput = document.querySelector(SELECTORS.searchInput);
 const clearSearchButton = document.querySelector(SELECTORS.searchClearButton);
+
 //storage
 const getTodosFromStorage = () => {
   const todosFromStorage = window.localStorage.getItem("todos");
@@ -32,29 +31,39 @@ const getTodosFromStorage = () => {
       const parsedTodos = JSON.parse(todosFromStorage);
 
       if (Array.isArray(parsedTodos)) {
-        todos.splice(
-          0,
-          todos.length,
-          ...parsedTodos.map((todo) => ({
-            ...todo,
-            editing: false,
-          })),
-        );
+        return parsedTodos;
       }
     } catch {
       window.localStorage.removeItem("todos");
     }
   }
-  filterTodos();
+  return [];
+};
+let todos = getTodosFromStorage();
+
+const getVisibleTodos = (todos, currentFilter, searchValue) => {
+  return todos.filter((todo) => {
+    const matchesFilter =
+      currentFilter === "all" ||
+      (currentFilter === "active" && !todo.done) ||
+      (currentFilter === "completed" && todo.done);
+    const matchesSearch =
+      !searchValue ||
+      todo.text.toLowerCase().includes(searchValue.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+};
+const setTodosToStorage = (todos) => {
+  window.localStorage.setItem("todos", JSON.stringify(todos));
 };
 
 //helpers
-const findTodoById = (todoId) => {
+const findTodoById = (todos, todoId) => {
   const numericTodoId = Number(todoId);
   return todos.find((todo) => todo.id === numericTodoId);
 };
 
-const createTodo = (value) => {
+const createTodo = (todos, value) => {
   const text = value.trim();
 
   if (!text) {
@@ -68,46 +77,33 @@ const createTodo = (value) => {
     done: false,
     editing: false,
   });
-  window.localStorage.setItem("todos", JSON.stringify(todos));
+  setTodosToStorage(todos);
 };
 
-const removeTodo = (todoId) => {
-  const todo = findTodoById(todoId);
-  if (!todo) {
-    return;
-  }
-  const filteredTodos = todos.filter((todo) => todo.id !== Number(todoId));
-  todos.splice(0, todos.length, ...filteredTodos);
-  window.localStorage.setItem("todos", JSON.stringify(todos));
-  renderTodos();
+const removeTodo = (todos, todoId) => {
+  return todos.filter((todo) => todo.id !== Number(todoId));
 };
 
-const toggleTodo = (todoId) => {
-  const todo = findTodoById(todoId);
-
-  if (!todo) {
-    return;
-  }
-
-  todo.done = !todo.done;
-  window.localStorage.setItem("todos", JSON.stringify(todos));
-  renderTodos();
+const toggleTodo = (todos, todoId) => {
+  return todos.map((todo) => {
+    if (todo.id === Number(todoId)) {
+      return { ...todo, done: !todo.done };
+    }
+    return todo;
+  });
 };
 
-const startEditTodo = (todoId) => {
-  const todo = findTodoById(todoId);
-
-  if (!todo) {
-    return;
-  }
-
-  todo.editing = true;
-  window.localStorage.setItem("todos", JSON.stringify(todos));
-  renderTodos();
+const startEditTodo = (todos, todoId) => {
+  return todos.map((todo) => {
+    if (todo.id === Number(todoId)) {
+      return { ...todo, editing: true };
+    }
+    return todo;
+  });
 };
 
-const saveEditTodo = (todoId) => {
-  const todo = findTodoById(todoId);
+const saveEditTodo = (todos, todoId) => {
+  const todo = findTodoById(todos, todoId);
 
   if (!todo) {
     return;
@@ -136,13 +132,7 @@ const saveEditTodo = (todoId) => {
   }
   todo.text = newText;
   todo.editing = false;
-  window.localStorage.setItem("todos", JSON.stringify(todos));
-  renderTodos();
-};
-
-const filterTodos = (filter) => {
-  currentFilter = filter;
-  window.localStorage.setItem("currentFilter", currentFilter);
+  setTodosToStorage(todos);
   renderTodos();
 };
 
@@ -177,27 +167,8 @@ const renderTodoItem = (todo) => {
   `;
 };
 
-const getVisibleTodos = () => {
-  let visibleTodos = [...todos];
-  if (currentFilter === "active") {
-    visibleTodos = visibleTodos.filter((todo) => !todo.done);
-  }
-
-  if (currentFilter === "completed") {
-    visibleTodos = visibleTodos.filter((todo) => todo.done);
-  }
-
-  if (searchValue) {
-    const value = searchValue.trim().toLowerCase();
-    visibleTodos = visibleTodos.filter((todo) =>
-      todo.text.toLowerCase().includes(value),
-    );
-  }
-  return visibleTodos;
-};
-
 const renderTodos = () => {
-  const visibleTodos = getVisibleTodos();
+  const visibleTodos = getVisibleTodos(todos, currentFilter, searchValue);
 
   todosList.innerHTML = visibleTodos
     .map((todo) => renderTodoItem(todo))
@@ -209,7 +180,7 @@ const handleSubmit = (event) => {
 
   const value = mainInput.value;
 
-  createTodo(value);
+  createTodo(todos, value);
 
   mainInput.value = "";
   renderTodos();
@@ -219,21 +190,24 @@ todosList.addEventListener("click", (event) => {
   const deleteButton = event.target.closest(SELECTORS.deleteButton);
 
   if (deleteButton) {
-    removeTodo(deleteButton.dataset.id);
-    return;
+    todos = removeTodo(todos, deleteButton.dataset.id);
+    setTodosToStorage(todos);
+    renderTodos();
   }
 
   const editButton = event.target.closest(SELECTORS.editButton);
 
   if (editButton) {
-    startEditTodo(editButton.dataset.id);
+    todos = startEditTodo(todos, editButton.dataset.id);
+    setTodosToStorage(todos);
+    renderTodos();
     return;
   }
 
   const saveButton = event.target.closest(SELECTORS.saveButton);
 
   if (saveButton) {
-    saveEditTodo(saveButton.dataset.id);
+    saveEditTodo(todos, saveButton.dataset.id);
     return;
   }
 
@@ -242,7 +216,9 @@ todosList.addEventListener("click", (event) => {
   if (checkbox) {
     const taskItem = checkbox.closest(SELECTORS.todoItem);
     if (taskItem) {
-      toggleTodo(taskItem.dataset.id);
+      todos = toggleTodo(todos, taskItem.dataset.id);
+      setTodosToStorage(todos);
+      renderTodos();
     }
   }
 });
@@ -252,7 +228,7 @@ todosList.addEventListener("keydown", (event) => {
     const todoItem = event.target.closest(SELECTORS.todoItem);
 
     if (todoItem) {
-      saveEditTodo(todoItem.dataset.id);
+      saveEditTodo(todos, todoItem.dataset.id);
     }
   }
 });
@@ -269,7 +245,9 @@ filterWrapper.addEventListener("click", (event) => {
   if (!nextFilter) {
     return;
   }
-  filterTodos(nextFilter);
+  currentFilter = nextFilter;
+  window.localStorage.setItem("currentFilter", currentFilter);
+  renderTodos();
 });
 
 searchInput.addEventListener("input", (event) => {
@@ -285,3 +263,4 @@ clearSearchButton.addEventListener("click", () => {
 
 todoForm.addEventListener("submit", handleSubmit);
 getTodosFromStorage();
+renderTodos();
