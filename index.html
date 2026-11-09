@@ -1,19 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
-    <script src="app.js" defer></script>
-    <link rel="stylesheet" href="styles.css" />
+    <script src="/dist/main.js" type="module"></script>
+    <link rel="stylesheet" href="./dist/main.css" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TODO</title>
   </head>
   <body>
-    <main>
+    <main class="app">
       <h1>Добавить задачу</h1>
       <div class="main-form__wrapper">
         <form class="main-form" action="" method="get">
-          <input aria-label="Search" class="main-input" type="text" />
-          <button class="main-form__submit-button" type="submit">
+          <input
+            aria-label="Новая задача"
+            class="input main-input"
+            type="text"
+            placeholder="Что нужно сделать?"
+          />
+          <button
+            class="button main-form__submit-button"
+            type="submit"
+          >
             Добавить
           </button>
         </form>
@@ -21,22 +29,37 @@
       <div class="search-form__wrapper">
         <label for="search-input" class="search-form__label">Поиск</label>
         <input
-          aria-label="Search"
-          class="search-input"
+          aria-label="Поиск задач"
+          class="input search-input"
           type="text"
           id="search-input"
+          placeholder="Найти задачу"
         />
-        <button type="button" class="search-form__clear-button">X</button>
+        <button
+          type="button"
+          class="icon-button icon-button--delete search-form__clear-button"
+          aria-label="Очистить поиск"
+          title="Очистить поиск"
+        >X</button>
       </div>
       <div class="todo-list-wrapper">
         <div class="todo-list__filter-wrapper">
-          <button class="todo-list__filter-button" data-filter="all">
+          <button
+            class="button button--secondary todo-list__filter-button"
+            data-filter="all"
+          >
             Все
           </button>
-          <button class="todo-list__filter-button" data-filter="active">
+          <button
+            class="button button--secondary todo-list__filter-button"
+            data-filter="active"
+          >
             Активные
           </button>
-          <button class="todo-list__filter-button" data-filter="completed">
+          <button
+            class="button button--secondary todo-list__filter-button"
+            data-filter="completed"
+          >
             Выполненные
           </button>
         </div>

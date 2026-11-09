@@ -1,0 +1,33 @@
+@use "../../styles/variables" as *;
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  color: $text-primary;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+
+  &:hover {
+    background: $surface-hover;
+    color: $primary;
+  }
+
+  &--delete:hover {
+    background: #fee2e2;
+    color: $danger;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}

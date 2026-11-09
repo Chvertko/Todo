@@ -1,0 +1,56 @@
+@use "../../styles/variables" as *;
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition:
+    background $transition-fast,
+    box-shadow $transition-fast;
+
+  &:hover {
+    background: $surface-hover;
+    box-shadow: $shadow-sm;
+  }
+
+  &__text {
+    flex: 1;
+    color: $text-primary;
+    font-size: 14px;
+  }
+
+  &__edit-input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__operations {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__complete-checkbox {
+    width: 18px;
+    height: 18px;
+    margin: 0 4px 0 0;
+    accent-color: $primary;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 3px;
+    }
+  }
+
+  &--done {
+    .todo-item__text {
+      color: $text-muted;
+      text-decoration: line-through;
+    }
+  }
+}

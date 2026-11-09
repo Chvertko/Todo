@@ -1,0 +1,27 @@
+{
+  "type": "module",
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "https://github.com/Chvertko/Todo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx webpack --mode production",
+    "dev": "webpack serve --mode development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chvertko/Todo.git"
+  },
+  "devDependencies": {
+    "css-loader": "^7.1.5",
+    "mini-css-extract-plugin": "^2.10.2",
+    "postcss-loader": "^8.2.1",
+    "postcss-preset-env": "^11.6.1",
+    "sass": "^1.106.1",
+    "sass-loader": "^17.0.1",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.1.0"
+  }
+}

@@ -1,0 +1,58 @@
+@use "../../styles/variables" as *;
+
+.button {
+  padding: 10px 16px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    transform $transition-fast;
+
+  &:hover {
+    background: $primary-hover;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    background: $primary-active;
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &--secondary {
+    background: $surface;
+    color: $text-primary;
+    border: 1px solid $border;
+
+    &:hover {
+      background: $surface-hover;
+    }
+  }
+
+  &--danger {
+    background: $danger;
+  }
+}
+.button-active {
+  background: $primary-active;
+  color: $text-secondary;
+  transform: translateY(0);
+  &:hover {
+    background: $primary-active;
+  }
+}
